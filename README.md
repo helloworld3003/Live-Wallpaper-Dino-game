@@ -2,7 +2,7 @@
 
 A fully functional, retro-style Chrome Dino runner game implemented as an Android Live Wallpaper.
 
-![Screenshot 1](screenshots/Screenshot_20260515-014344.Live Wallpaper Dino game.png)
+![Screenshot 1](screenshots/Screenshot_20260515-014330.png)
 
 ## Features
 - **Playable Live Wallpaper**: Tap the screen to make the Dino jump and avoid obstacles!
