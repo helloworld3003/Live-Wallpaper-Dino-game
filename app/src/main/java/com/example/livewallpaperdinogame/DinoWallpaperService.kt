@@ -77,6 +77,7 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, private val context: 
     private val prefs = context.getSharedPreferences("DinoPrefs", Context.MODE_PRIVATE)
 
     private var backgroundBitmap: Bitmap? = null
+    private var staticDinoBitmap: Bitmap? = null // Add this
     private var spriteBitmap: Bitmap? = null
 
     private var screenWidth = 0
@@ -153,7 +154,9 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, private val context: 
     private fun loadResources() {
         try {
             val options = BitmapFactory.Options().apply { inScaled = false }
-            backgroundBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.no_internet, options)
+            // Load the new separated assets
+            backgroundBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.bg, options)
+            staticDinoBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.dino, options)
             spriteBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.sprite, options)
         } catch (e: Exception) {
             Log.e("DinoWallpaper", "Resource loading failed", e)
@@ -354,6 +357,7 @@ override fun run() {
 
         canvas.drawColor(Color.parseColor("#1a1a1a"))
 
+        // 1. Calculate the master destination rectangle for the full 720x1600 images
         backgroundBitmap?.let { bg ->
             val scaleX = screenWidth.toFloat() / bg.width
             val scaleY = screenHeight.toFloat() / bg.height
@@ -364,46 +368,46 @@ override fun run() {
             val top = (screenHeight - sh) / 2f
 
             bgDestRect.set(left, top, left + sw, top + sh)
+            
+            // Draw the pure static background
             canvas.drawBitmap(bg, null, bgDestRect, dimPaint)
-
-            if (showGameElements) {
-                // FIXED: Black mask now scales its height relative to the dino size rather than hardcoded 160f
-                val maskHeight = (screenWidth * 0.15f) * (dinoRun1.height().toFloat() / dinoRun1.width()) * 1.5f
-                val maskTop = groundY - maskHeight
-                canvas.drawRect(0f, maskTop, screenWidth.toFloat(), groundY - 20f, maskPaint)
-            }
         }
 
+        // Shared Dino variables for the animated sprite
+        val dinoWidth = screenWidth * 0.15f
+        val dinoX = screenWidth * 0.1f
+
         if (showGameElements) {
+            // --- ACTIVE GAME STATE ---
+            
             spriteBitmap?.let { sprite ->
-                val groundHeight = (screenWidth * 0.15f) * (groundSrc.height().toFloat() / dinoRun1.height())
+                // Ground
+                val groundHeight = dinoWidth * (groundSrc.height().toFloat() / dinoRun1.height())
                 groundDestRect1.set(groundOffsetX, groundY - 2, groundOffsetX + screenWidth, groundY + groundHeight - 2)
                 groundDestRect2.set(groundOffsetX + screenWidth, groundY - 2, groundOffsetX + screenWidth * 2, groundY + groundHeight - 2)
                 canvas.drawBitmap(sprite, groundSrc, groundDestRect1, spritePaint)
                 canvas.drawBitmap(sprite, groundSrc, groundDestRect2, spritePaint)
-            }
 
-            clouds.forEach { cloud ->
-                spriteBitmap?.let { sprite ->
+                // Clouds
+                clouds.forEach { cloud ->
                     genericDestRect.set(cloud.x, cloud.y, cloud.x + cloud.width, cloud.y + cloud.height)
                     canvas.drawBitmap(sprite, cloudSrc, genericDestRect, cloudPaint)
                 }
-            }
 
-            obstacles.forEach { obs ->
-                spriteBitmap?.let { sprite ->
+                // Obstacles
+                obstacles.forEach { obs ->
                     genericDestRect.set(obs.x, groundY - obs.height, obs.x + obs.width, groundY)
                     canvas.drawBitmap(sprite, obs.srcRect, genericDestRect, spritePaint)
                 }
-            }
 
-            val hiscoreText = "HI: ${highScore.toString().padStart(5, '0')}  "
-            canvas.drawText(hiscoreText, 20f, 100f, textPaint)
-            val scoreText = "SCORE: ${score.toString().padStart(5, '0')}  "
-            canvas.drawText(scoreText, screenWidth / 2 + 98f, 100f, textPaint)
+                // Scores
+                val hiscoreText = "HI: ${highScore.toString().padStart(5, '0')}  "
+                canvas.drawText(hiscoreText, 20f, 100f, textPaint)
+                val scoreText = "SCORE: ${score.toString().padStart(5, '0')}  "
+                canvas.drawText(scoreText, screenWidth / 2 + 98f, 100f, textPaint)
 
-            if (isGameOver) {
-                spriteBitmap?.let { sprite ->
+                // Game Over Text
+                if (isGameOver) {
                     val gameOverWidth = screenWidth * 0.5f
                     val gameOverHeight = gameOverWidth * (gameOverSrc.height().toFloat() / gameOverSrc.width())
                     val left = (screenWidth - gameOverWidth) / 2f
@@ -411,14 +415,11 @@ override fun run() {
                     genericDestRect.set(left, top, left + gameOverWidth, top + gameOverHeight)
                     canvas.drawBitmap(sprite, gameOverSrc, genericDestRect, spritePaint)
                 }
-            }
 
-            val dinoWidth = screenWidth * 0.15f
-            val dinoHeight = dinoWidth * (dinoRun1.height().toFloat() / dinoRun1.width())
-            val dinoX = screenWidth * 0.1f
-            dinoRectDest.set(dinoX, dinoY - dinoHeight, dinoX + dinoWidth, dinoY)
-
-            spriteBitmap?.let { sprite ->
+                // Animated Dino
+                val dinoHeight = dinoWidth * (dinoRun1.height().toFloat() / dinoRun1.width())
+                dinoRectDest.set(dinoX, dinoY - dinoHeight, dinoX + dinoWidth, dinoY)
+                
                 val src = when {
                     isGameOver -> dinoJump
                     isJumping -> dinoJump
@@ -426,8 +427,15 @@ override fun run() {
                     else -> dinoRun2
                 }
                 canvas.drawBitmap(sprite, src, dinoRectDest, spritePaint)
-            } ?: run {
-                canvas.drawRect(dinoRectDest, darkGrayPaint)
+            }
+        } else {
+            // --- IDLE STATE ---
+            
+            // Draw the full-size transparent dino image using the exact same calculated rect
+            // as the background. This guarantees a pixel-perfect 1:1 overlay, completely 
+            // ignoring the game's groundY logic for the static image.
+            staticDinoBitmap?.let { staticDino ->
+                canvas.drawBitmap(staticDino, null, bgDestRect, spritePaint)
             }
         }
     }
