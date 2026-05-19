@@ -1,6 +1,6 @@
 # Chrome Dino Live Wallpaper Game
 
-A fully functional, retro-style Chrome Dino runner game implemented as an Android Live Wallpaper.
+A fully functional, retro-style Chrome Dino runner game implemented as an Android Live Wallpaper. Just press on the dinosaur and the game will start immediately.
 <div align="center">
 <img src="screenshots/Screenshot_20260515-014330.png" width="150" height="500" alt="The Game"/>
 &nbsp;&nbsp;&nbsp;
