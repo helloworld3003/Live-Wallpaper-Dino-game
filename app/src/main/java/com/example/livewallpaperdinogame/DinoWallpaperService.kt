@@ -74,13 +74,14 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, private val context: 
     private val targetFPS = 60
     private val targetTime = 1000L / targetFPS
 
+    private val prefs = context.getSharedPreferences("DinoPrefs", Context.MODE_PRIVATE)
+
     private var backgroundBitmap: Bitmap? = null
     private var spriteBitmap: Bitmap? = null
 
     private var screenWidth = 0
     private var screenHeight = 0
     private var groundY = 0f
-
     private var dinoY = 0f
     private var dinoVelocity = 0f
     private val gravity = 2.8f
@@ -98,6 +99,15 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, private val context: 
     private var isGameOver = false
     private var gameOverTime = 0L
 
+    // MEMORY LEAK FIX: Pre-allocate Rects used in the draw loop
+    private val bgDestRect = RectF()
+    private val genericDestRect = RectF()
+    private val groundDestRect1 = RectF()
+    private val groundDestRect2 = RectF()
+    private val dinoRectDest = RectF()
+    
+    private val dimPaint = Paint().apply { alpha = 160 }
+    private val darkGrayPaint = Paint().apply { color = Color.parseColor("#535353") }
     private val spritePaint = Paint().apply {
         isAntiAlias = false
         isFilterBitmap = false
@@ -106,6 +116,11 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, private val context: 
         color = Color.BLACK
         style = Paint.Style.FILL
     }
+    private val cloudPaint = Paint().apply {
+        alpha = 140
+        isAntiAlias = false
+        isFilterBitmap = false
+    }
 
     private data class Cloud(var x: Float, var y: Float, val speed: Float, val width: Float, val height: Float)
     private val clouds = mutableListOf<Cloud>()
@@ -113,7 +128,6 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, private val context: 
     private data class Obstacle(var x: Float, val width: Float, val height: Float, val srcRect: Rect)
     private val obstacles = mutableListOf<Obstacle>()
 
-    // Refined Sprite Sheet Coordinates
     private val dinoRun1 = Rect(1514, 0, 1602, 94)
     private val dinoRun2 = Rect(1602, 0, 1690, 94)
     private val dinoJump = Rect(1338, 0, 1426, 94)
@@ -123,29 +137,17 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, private val context: 
     private val gameOverSrc = Rect(954, 29, 1335, 50)
     private val groundSrc = Rect(0, 104, 2404, 122)
 
-    private val glowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.WHITE
-        style = Paint.Style.FILL
-    }
     private val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.WHITE
+        alpha = 200
         textSize = 35f
         typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
     }
-    private val gameOverPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.RED
-        textSize = 50f
-        typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
-        textAlign = Paint.Align.CENTER
-    }
-    private val cursorPaint = Paint().apply {
-        color = Color.WHITE
-        style = Paint.Style.FILL
-    }
-    private var startTime = System.currentTimeMillis()
 
     init {
         loadResources()
+        // Load persistent high score
+        highScore = prefs.getInt("high_score", 0)
     }
 
     private fun loadResources() {
@@ -153,7 +155,6 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, private val context: 
             val options = BitmapFactory.Options().apply { inScaled = false }
             backgroundBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.no_internet, options)
             spriteBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.sprite, options)
-            Log.d("DinoWallpaper", "Resources loaded: background=${backgroundBitmap != null}, sprite=${spriteBitmap != null}")
         } catch (e: Exception) {
             Log.e("DinoWallpaper", "Resource loading failed", e)
         }
@@ -168,17 +169,10 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, private val context: 
             val dinoWidth = screenWidth * 0.15f
             val dinoHeight = dinoWidth * (dinoRun1.height().toFloat() / dinoRun1.width())
             val dinoX = screenWidth * 0.1f
-            // Hitbox with 50px padding for easier tapping
-            val hitbox = RectF(
-                dinoX - 50f,
-                dinoY - dinoHeight - 50f,
-                dinoX + dinoWidth + 50f,
-                dinoY + 50f
-            )
+            val hitbox = RectF(dinoX - 50f, dinoY - dinoHeight - 50f, dinoX + dinoWidth + 50f, dinoY + 50f)
 
             if (hitbox.contains(x, y)) {
                 if (isGameOver) {
-                    // Reset game state
                     isGameOver = false
                     score = 0
                     scoreInterval = 0
@@ -201,10 +195,13 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, private val context: 
         }
     }
 
-    override fun run() {
+override fun run() {
         while (isRunning) {
             val startTimeLoop = System.nanoTime()
-            Log.d("DinoWallpaper", "Drawing frame...")
+
+            // DYNAMIC FRAME RATE: 60 FPS during gameplay, 15 FPS when idle
+            val currentFPS = if (isPlaying) 60 else 15
+            val currentTargetTime = 1000L / currentFPS
 
             var canvas: Canvas? = null
             try {
@@ -221,57 +218,55 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, private val context: 
                 canvas?.let {
                     try {
                         surfaceHolder.unlockCanvasAndPost(it)
-                    } catch (e: Exception) {
-                        Log.e("DinoWallpaper", "Error unlocking canvas", e)
-                    }
+                    } catch (e: Exception) {}
                 }
             }
 
+            // Calculate how long to sleep to hit our dynamic target time
             val timeMillis = (System.nanoTime() - startTimeLoop) / 1000000
-            val waitTime = targetTime - timeMillis
+            val waitTime = currentTargetTime - timeMillis
+            
             if (waitTime > 0) {
-                try { sleep(waitTime) } catch (e: Exception) {}
+                try { 
+                    sleep(waitTime) 
+                } catch (e: Exception) {}
             }
         }
     }
 
     private fun update() {
+        // ALWAYS fetch the latest score and placement dynamically so it updates immediately when changed in MainActivity
+        highScore = prefs.getInt("high_score", 0)
+        val placementProgress = prefs.getInt("ground_placement", 50)
+        
         val rect = surfaceHolder.surfaceFrame
         if (screenWidth != rect.width() || screenHeight != rect.height()) {
             screenWidth = rect.width()
             screenHeight = rect.height()
-            if (screenWidth <= 0 || screenHeight <= 0) return
+        }
+        
+        if (screenWidth <= 0 || screenHeight <= 0) return
 
-            groundY = screenHeight * 0.38f
-            if (!isJumping) dinoY = groundY
+        // Calculate ground placement dynamically based on slider (0 to 100)
+        // 50 is center (0.5f). Maps to a vertical range on the screen.
+        val placementRatio = 0.2f + (placementProgress / 100f) * 0.4f 
+        groundY = screenHeight * placementRatio
+        
+        if (!isJumping) dinoY = groundY
 
-            if (clouds.isEmpty()) {
-                for (i in 0..1) { // 2 clouds
-                    clouds.add(Cloud(
-                        (Math.random() * screenWidth).toFloat(),
-                        screenHeight * 0.15f + (Math.random() * screenHeight * 0.15f).toFloat(),
-                        0.2f + (Math.random() * 0.5f).toFloat(),
-                        screenWidth * 0.08f + (Math.random() * screenWidth * 0.04f).toFloat(),
-                        screenHeight * 0.025f + (Math.random() * screenHeight * 0.015f).toFloat()
-                    ))
-                }
+        if (clouds.isEmpty()) {
+            for (i in 0..1) {
+                clouds.add(Cloud(
+                    (Math.random() * screenWidth).toFloat(),
+                    screenHeight * 0.15f + (Math.random() * screenHeight * 0.15f).toFloat(),
+                    0.2f + (Math.random() * 0.5f).toFloat(),
+                    screenWidth * 0.08f + (Math.random() * screenWidth * 0.04f).toFloat(),
+                    screenHeight * 0.025f + (Math.random() * screenHeight * 0.015f).toFloat()
+                ))
             }
-
-            val glowRadius = maxOf(screenWidth * 0.35f, screenHeight * 0.15f)
-            glowPaint.shader = RadialGradient(
-                screenWidth / 2f, screenHeight * 0.35f, glowRadius,
-                intArrayOf(Color.argb(150, 255, 255, 255), Color.argb(0, 255, 255, 255)),
-                null, Shader.TileMode.CLAMP
-            )
         }
 
-        if (isGameOver) {
-            return
-        }
-
-        if (!isPlaying) {
-            return
-        }
+        if (isGameOver || !isPlaying) return
 
         scoreInterval++
         if (scoreInterval > 6) {
@@ -311,16 +306,10 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, private val context: 
             }
         }
 
-        // Obstacles logic
         if (obstacles.isEmpty() || (screenWidth - (obstacles.lastOrNull()?.x ?: 0f)) > screenWidth * 0.7f) {
             if (Math.random() < 0.03) {
-                val isLarge = if (score < 150) false else Math.random() < 0.4
-                val maxMulti = when {
-                    score < 50 -> 1
-                    score < 200 -> 2
-                    else -> 3
-                }
-                val multi = (Math.random() * maxMulti).toInt() + 1 // 1, 2, or 3
+                val isLarge = score >= 150 && Math.random() < 0.4
+                val multi = ((Math.random() * (if(score < 50) 1 else if(score < 200) 2 else 3)).toInt() + 1)
                 val baseSrc = if (isLarge) cactusLarge else cactusSmall
                 val src = Rect(baseSrc.left, baseSrc.top, baseSrc.left + baseSrc.width() * multi, baseSrc.bottom)
                 val h = if (isLarge) screenHeight * 0.08f else screenHeight * 0.05f
@@ -339,13 +328,17 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, private val context: 
             val obs = iterator.next()
             obs.x -= gameSpeed
 
-            // Collision detection
             val obsHitbox = RectF(obs.x + 10, groundY - obs.height + 10, obs.x + obs.width - 10, groundY)
             if (RectF.intersects(dinoHitbox, obsHitbox)) {
                 isGameOver = true
                 isPlaying = false
                 gameOverTime = System.currentTimeMillis()
-                if (score > highScore) highScore = score
+                
+                // Save High Score permanently
+                if (score > highScore) {
+                    highScore = score
+                    prefs.edit().putInt("high_score", highScore).apply()
+                }
             }
 
             if (obs.x + obs.width < 0) {
@@ -359,7 +352,6 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, private val context: 
         val elapsedSinceGameOver = if (isGameOver) currentTime - gameOverTime else 0L
         val showGameElements = isPlaying || (isGameOver && elapsedSinceGameOver < 5000)
 
-        // Background
         canvas.drawColor(Color.parseColor("#1a1a1a"))
 
         backgroundBitmap?.let { bg ->
@@ -371,91 +363,71 @@ class DrawThread(private val surfaceHolder: SurfaceHolder, private val context: 
             val left = (screenWidth - sw) / 2f
             val top = (screenHeight - sh) / 2f
 
-            val destRect = RectF(left, top, left + sw, top + sh)
-            val paint = Paint().apply { alpha = 160 } // Dim the background
-            canvas.drawBitmap(bg, null, destRect, paint)
+            bgDestRect.set(left, top, left + sw, top + sh)
+            canvas.drawBitmap(bg, null, bgDestRect, dimPaint)
 
-            // Draw mask over the static Dino and game area only when active
             if (showGameElements) {
-                val maskLeft = 0f
-                val maskTop = groundY - 160f
-                val maskRight = screenWidth - 0f
-                val maskBottom = groundY - 20f
-                canvas.drawRect(maskLeft, maskTop, maskRight, maskBottom, maskPaint)
+                // FIXED: Black mask now scales its height relative to the dino size rather than hardcoded 160f
+                val maskHeight = (screenWidth * 0.15f) * (dinoRun1.height().toFloat() / dinoRun1.width()) * 1.5f
+                val maskTop = groundY - maskHeight
+                canvas.drawRect(0f, maskTop, screenWidth.toFloat(), groundY - 20f, maskPaint)
             }
         }
 
         if (showGameElements) {
-            // Draw ground sprite
-            spriteBitmap?.let {
+            spriteBitmap?.let { sprite ->
                 val groundHeight = (screenWidth * 0.15f) * (groundSrc.height().toFloat() / dinoRun1.height())
-                val dest1 = RectF(groundOffsetX, groundY - 2, groundOffsetX + screenWidth, groundY + groundHeight - 2)
-                val dest2 = RectF(groundOffsetX + screenWidth, groundY - 2, groundOffsetX + screenWidth * 2, groundY + groundHeight - 2)
-                canvas.drawBitmap(it, groundSrc, dest1, spritePaint)
-                canvas.drawBitmap(it, groundSrc, dest2, spritePaint)
+                groundDestRect1.set(groundOffsetX, groundY - 2, groundOffsetX + screenWidth, groundY + groundHeight - 2)
+                groundDestRect2.set(groundOffsetX + screenWidth, groundY - 2, groundOffsetX + screenWidth * 2, groundY + groundHeight - 2)
+                canvas.drawBitmap(sprite, groundSrc, groundDestRect1, spritePaint)
+                canvas.drawBitmap(sprite, groundSrc, groundDestRect2, spritePaint)
             }
 
-//            // Draw pulsating glow
-//            val glowAlpha = ((sin((currentTime - startTime) / 1000.0) + 1.0) / 2.0 * 50).toInt() + 10
-//            glowPaint.alpha = glowAlpha
-//            canvas.drawCircle(screenWidth / 2f, screenHeight * 0.35f, maxOf(screenWidth * 0.35f, screenHeight * 0.15f), glowPaint)
-
-            // Draw clouds
             clouds.forEach { cloud ->
-                spriteBitmap?.let {
-                    val dest = RectF(cloud.x, cloud.y, cloud.x + cloud.width, cloud.y + cloud.height)
-                    val cloudPaint = Paint().apply {
-                        alpha = 140
-                        isAntiAlias = false
-                        isFilterBitmap = false
-                    }
-                    canvas.drawBitmap(it, cloudSrc, dest, cloudPaint)
+                spriteBitmap?.let { sprite ->
+                    genericDestRect.set(cloud.x, cloud.y, cloud.x + cloud.width, cloud.y + cloud.height)
+                    canvas.drawBitmap(sprite, cloudSrc, genericDestRect, cloudPaint)
                 }
             }
 
-            // Draw obstacles
             obstacles.forEach { obs ->
-                spriteBitmap?.let {
-                    val dest = RectF(obs.x, groundY - obs.height, obs.x + obs.width, groundY)
-                    canvas.drawBitmap(it, obs.srcRect, dest, spritePaint)
+                spriteBitmap?.let { sprite ->
+                    genericDestRect.set(obs.x, groundY - obs.height, obs.x + obs.width, groundY)
+                    canvas.drawBitmap(sprite, obs.srcRect, genericDestRect, spritePaint)
                 }
             }
 
-            // Draw Score
-            textPaint.color = Color.WHITE
-            textPaint.alpha = 200
             val hiscoreText = "HI: ${highScore.toString().padStart(5, '0')}  "
             canvas.drawText(hiscoreText, 20f, 100f, textPaint)
             val scoreText = "SCORE: ${score.toString().padStart(5, '0')}  "
-            canvas.drawText(scoreText, screenWidth/2 + 98f, 100f, textPaint)
+            canvas.drawText(scoreText, screenWidth / 2 + 98f, 100f, textPaint)
 
             if (isGameOver) {
-                spriteBitmap?.let {
+                spriteBitmap?.let { sprite ->
                     val gameOverWidth = screenWidth * 0.5f
                     val gameOverHeight = gameOverWidth * (gameOverSrc.height().toFloat() / gameOverSrc.width())
                     val left = (screenWidth - gameOverWidth) / 2f
                     val top = screenHeight / 2f - screenHeight * 0.31f
-                    val dest = RectF(left, top, left + gameOverWidth, top + gameOverHeight)
-                    canvas.drawBitmap(it, gameOverSrc, dest, spritePaint)
+                    genericDestRect.set(left, top, left + gameOverWidth, top + gameOverHeight)
+                    canvas.drawBitmap(sprite, gameOverSrc, genericDestRect, spritePaint)
                 }
             }
 
-            // Draw Dino
             val dinoWidth = screenWidth * 0.15f
             val dinoHeight = dinoWidth * (dinoRun1.height().toFloat() / dinoRun1.width())
             val dinoX = screenWidth * 0.1f
-            val dinoRectDest = RectF(dinoX, dinoY - dinoHeight, dinoX + dinoWidth, dinoY)
+            dinoRectDest.set(dinoX, dinoY - dinoHeight, dinoX + dinoWidth, dinoY)
 
-            spriteBitmap?.let {
+            spriteBitmap?.let { sprite ->
                 val src = when {
                     isGameOver -> dinoJump
                     isJumping -> dinoJump
                     walkFrame == 0 -> dinoRun1
                     else -> dinoRun2
                 }
-                canvas.drawBitmap(it, src, dinoRectDest, spritePaint)
+                canvas.drawBitmap(sprite, src, dinoRectDest, spritePaint)
             } ?: run {
-                canvas.drawRect(dinoRectDest, Paint().apply { color = Color.parseColor("#535353") })
+                canvas.drawRect(dinoRectDest, darkGrayPaint)
             }
         }
     }
