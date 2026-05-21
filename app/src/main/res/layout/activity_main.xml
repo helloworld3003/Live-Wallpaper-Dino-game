@@ -2,43 +2,62 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="32dp">
+    android:gravity="bottom"
+    android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Dino Live Wallpaper"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="32dp"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Adjust Ground Placement (Up/Down):"
-        android:layout_gravity="start"/>
-
-    <SeekBar
-        android:id="@+id/seekGroundPlacement"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:max="100"
-        android:progress="50"
-        android:layout_marginBottom="24dp"/>
+        android:orientation="vertical"
+        android:background="#D9121212"
+        android:padding="24dp"
+        android:elevation="10dp">
 
-    <Button
-        android:id="@+id/btnResetScore"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Reset High Score"
-        android:layout_marginBottom="16dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Wallpaper Layout Editor"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"/>
 
-    <Button
-        android:id="@+id/btnSetWallpaper"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Set Wallpaper" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#FFFFFF" android:text="Theme Selection"/>
+        <RadioGroup
+            android:id="@+id/radioGroupTheme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+            <RadioButton android:id="@+id/rbLight" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#FFFFFF" android:text="Light" />
+            <RadioButton android:id="@+id/rbDarkPlain" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#FFFFFF" android:text="Dark Plain" />
+            <RadioButton android:id="@+id/rbDarkAlt" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#FFFFFF" android:text="Dark Alt" />
+        </RadioGroup>
 
+        <Switch
+            android:id="@+id/switchStars"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#AAAAAA"
+            android:text="Shooting Stars (Plain Dark Only)"
+            android:layout_marginBottom="16dp"/>
+
+        <Switch android:id="@+id/switchDebug" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="#FFFFFF" android:text="Show Red Touch Hitbox" android:layout_marginBottom="16dp"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#FFFFFF" android:text="Ground (Up/Down)"/>
+        <SeekBar android:id="@+id/seekGround" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="100" android:layout_marginBottom="12dp"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#FFFFFF" android:text="Dinosaur (Left/Right)"/>
+        <SeekBar android:id="@+id/seekDinoX" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="100" android:layout_marginBottom="12dp"/>
+
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#FFFFFF" android:text="Score Text (Up/Down)"/>
+        <SeekBar android:id="@+id/seekTextY" android:layout_width="match_parent" android:layout_height="wrap_content" android:max="100" android:layout_marginBottom="24dp"/>
+
+        <Button android:id="@+id/btnResetDefaults" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Restore Default Layout" android:backgroundTint="#535353" android:layout_marginBottom="16dp"/>
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:weightSum="2">
+            <Button android:id="@+id/btnResetScore" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Reset Score" android:layout_marginEnd="8dp"/>
+            <Button android:id="@+id/btnSetWallpaper" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Set Wallpaper" android:layout_marginStart="8dp"/>
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>
