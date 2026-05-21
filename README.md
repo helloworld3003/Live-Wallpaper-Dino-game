@@ -13,7 +13,11 @@ A fully functional, retro-style Chrome Dino runner game implemented as an Androi
     </tr>
   </table>
 
-  https://github.com/user-attachments/assets/efa689e3-5f7e-49d5-8785-a78cc56dc660
+
+
+https://github.com/user-attachments/assets/201da903-4ce7-45c2-a4ec-b32f4f16784c
+
+
 </div>
 
 
