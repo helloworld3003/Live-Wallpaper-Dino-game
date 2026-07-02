@@ -1,5 +1,7 @@
 # Chrome Dino Live Wallpaper Game
 
+![Total Downloads](https://img.shields.io/github/downloads/helloworld3003/Live-Wallpaper-Dino-game/total?label=Total%20Downloads&style=for-the-badge)
+
 A fully functional, retro-style Chrome Dino runner game implemented as an Android Live Wallpaper. Just press on the dinosaur and the game will start immediately.
 <div align="center">
   <h3>🌟 Screenshots 🌟</h3>
@@ -58,7 +60,7 @@ Added Reset Button: Inserted a Button specifically to reset the saved high score
 Implemented SharedPreferences: Added logic to save and load user preferences (ground placement and high score) persistently.
 Wired Controls: Connected the SeekBar to update the "ground_placement" value dynamically, and the Reset button to clear the "high_score".
 3. Optimization & Engine Updates (DinoWallpaperService.kt)
-Fixed Memory Leaks (Crash/Green Screen Fix): Moved the instantiation of RectF and Paint objects out of the draw() and update() loops. Pre-allocated these objects globally to prevent the Garbage Collector from thrashing and exhausting device memory.
+Fixed Memory Leaks (Crash/Green Screen Fix): Moved the instantiation of RectF and Paint objects out of the draw() and update() loops. Pre-allocated these objects globally to prevent the Garbage Collector from causing memory pressure.
 Implemented Battery Saver (Dynamic FPS): Modified the run() loop to throttle the frame rate down to 15 FPS when the game is idle, and instantly ramp back up to 60 FPS when the user taps to play.
 Persistent High Scores: Integrated SharedPreferences into the collision detection logic to permanently save the high score when the player loses.
 Dynamic Placement: Updated the update() loop to read the slider value and adjust the groundY coordinates in real-time.
@@ -75,7 +77,7 @@ Fixed Black Mask Scaling: Adjusted the blackout mask (used to hide the static ba
 ### v1.3.0
 ## ✨ What's New
 
-* **Live Layout Editor (WYSIWYG):** Customize the wallpaper directly from your home screen! The app now features a transparent control panel allowing you to adjust the Ground Height, Dinosaur Position, and Score Margin on the fly with live sliders.
+* **Live Layout Editor (WYSIWYG):** Customize the wallpaper directly from your home screen! The app now features a transparent control panel allowing you to adjust the Ground Height, Dinosaur Position, and even the exact coordinates for the static decorative dino in real-time.
 * **Dynamic Theme Engine:** Instantly switch between **Light**, **Plain Dark**, and **Alt Dark** modes without needing to restart the wallpaper.
 * **Live Sky & Shooting Stars:** The Dark theme now features a fully animated night sky with twinkling background stars and CSS-style fading shooting stars that streak across your home screen.
 * **The Birds are Here:** Pterodactyls have entered the chat! Once you cross a score of 300, flying enemies will begin spawning at three different heights, requiring you to time your jumps and ducks perfectly.
@@ -83,7 +85,7 @@ Fixed Black Mask Scaling: Adjusted the blackout mask (used to hide the static ba
 
 ## 🛠 Under the Hood (Performance & Stability)
 
-* **Zero-Crash Rotation (Atomic Swapping):** Completely re-engineered the screen rotation logic. Transitioning from portrait to landscape now uses atomic bitmap swapping, permanently fixing the "grey screen" rotation crash and preventing Out-Of-Memory (OOM) leaks.
-* **Universal Screen Scaling:** Hardcoded pixels are gone. The game’s touch hitbox, text size, and element spacing are now strictly percentage-based, guaranteeing a pixel-perfect experience on any device—from budget 720p screens to extra-tall 1440p flagships.
+* **Zero-Crash Rotation (Atomic Swapping):** Completely re-engineed the screen rotation logic. Transitioning from portrait to landscape now uses atomic bitmap swapping, permanently fixing the "green/black screen" crash.
+* **Universal Screen Scaling:** Hardcoded pixels are gone. The game’s touch hitbox, text size, and element spacing are now strictly percentage-based, guaranteeing a pixel-perfect experience on all phones and tablets.
 * **Battery Saver Mode:** The game loop now flawlessly downshifts CPU/GPU usage by 75% (dropping to 15 FPS) the moment the game is idle, keeping your battery safe while maintaining a beautiful static wallpaper.
 * **Clean Build Output:** The compiled release file is now cleanly output as `Dino_game.apk`.
