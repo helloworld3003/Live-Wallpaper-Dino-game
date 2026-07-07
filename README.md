@@ -91,3 +91,14 @@ Fixed Black Mask Scaling: Adjusted the blackout mask (used to hide the static ba
 * **Universal Screen Scaling:** Hardcoded pixels are gone. The game’s touch hitbox, text size, and element spacing are now strictly percentage-based, guaranteeing a pixel-perfect experience on a[...]
 * **Battery Saver Mode:** The game loop now flawlessly downshifts CPU/GPU usage by 75% (dropping to 15 FPS) the moment the game is idle, keeping your battery safe while maintaining a beautiful sta[...]
 * **Clean Build Output:** The compiled release file is now cleanly output as `Dino_game.apk`.
+
+## License & Asset Provenance
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+### Asset Provenance (F-Droid Inclusion)
+In compliance with F-Droid's Free/Libre Open Source Software (FLOSS) guidelines:
+- **Source Code:** MIT License.
+- **Sprites / Backgrounds:**
+  - The T-Rex and cactus sprites are derived from the Chromium Open Source Project and are available under the BSD 3-Clause License.
+  - All original UI elements, backgrounds, and custom modifications created for this Live Wallpaper are released under the [CC0 1.0 Universal (Public Domain)](https://creativecommons.org/publicdomain/zero/1.0/) license.
