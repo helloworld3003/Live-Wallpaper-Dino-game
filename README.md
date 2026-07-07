@@ -92,6 +92,15 @@ Fixed Black Mask Scaling: Adjusted the blackout mask (used to hide the static ba
 * **Battery Saver Mode:** The game loop now flawlessly downshifts CPU/GPU usage by 75% (dropping to 15 FPS) the moment the game is idle, keeping your battery safe while maintaining a beautiful sta[...]
 * **Clean Build Output:** The compiled release file is now cleanly output as `Dino_game.apk`.
 
+### v1.4.0 (F-Droid Readiness Update)
+## ✨ What's New
+* **Custom App Icon:** The generic Android robot has been replaced with a high-resolution, custom Dinosaur app icon that scales perfectly across all screen densities.
+* **Open Source Licensing:** Added an explicit MIT `LICENSE` file and an Asset Provenance declaration to ensure full compliance with F-Droid's open-source guidelines.
+
+## 🛠 Under the Hood (Performance & Stability)
+* **Dynamic Physics Engine:** Fixed a bug where the Dinosaur could jump *over* the highest flying bird on certain screens. The game's jump gravity and velocity are now dynamically calculated based on the device's screen height, ensuring mathematically perfect jump arcs and hitbox collisions on any aspect ratio.
+* **Package Refactoring:** Safely removed the placeholder `com.example` Application ID and refactored the entire project to a production-ready `com.helloworld3003.livewallpaperdinogame` namespace, removing a critical blocker for F-Droid inclusion.
+
 ## License & Asset Provenance
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
