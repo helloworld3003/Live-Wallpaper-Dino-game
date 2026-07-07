@@ -1,5 +1,9 @@
 # Chrome Dino Live Wallpaper Game
 
+<p align="center">
+  <img src="dino_game.png" alt="App Icon" width="140"/>
+</p>
+
 ![Total Downloads](https://img.shields.io/github/downloads/helloworld3003/Live-Wallpaper-Dino-game/total?label=Total%20Downloads&style=for-the-badge)
 
 [![Download APK](https://img.shields.io/badge/Download-APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/helloworld3003/Live-Wallpaper-Dino-game/releases/download/v1.3.0/Dino_game.apk)
