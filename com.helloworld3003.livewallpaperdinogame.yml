@@ -1,0 +1,28 @@
+Categories:
+  - Games
+  - Theming
+License: MIT
+SourceCode: https://github.com/helloworld3003/Live-Wallpaper-Dino-game
+IssueTracker: https://github.com/helloworld3003/Live-Wallpaper-Dino-game/issues
+
+AutoName: Live Wallpaper Dino Game
+Summary: A playable retro Chrome Dino runner implemented as an Android Live Wallpaper.
+Description: |-
+  Live Wallpaper Dino Game brings the classic offline Dino runner experience to Android as an interactive live wallpaper.  
+  The project is written in Kotlin and designed to run as a wallpaper service while keeping gameplay responsive and lightweight.
+
+RepoType: git
+Repo: https://github.com/helloworld3003/Live-Wallpaper-Dino-game
+
+Builds:
+  - versionName: 1.4.0
+    versionCode: 4  # Update this to match the versionCode inside your v1.4.0 tag!
+    commit: v1.4.0
+    subdir: app
+    gradle:
+      - yes
+
+AutoUpdateMode: Version v%v
+UpdateCheckMode: Tags
+CurrentVersion: 1.4.0
+CurrentVersionCode: 4 # Update this as well!
