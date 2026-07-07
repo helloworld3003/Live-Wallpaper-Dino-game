@@ -1,4 +1,4 @@
-package com.example.livewallpaperdinogame
+package com.helloworld3003.livewallpaperdinogame
 
 import android.content.Context
 import android.graphics.*
@@ -133,8 +133,9 @@ class DinoWallpaperService : WallpaperService() {
         private var groundY = 0f
         private var dinoY = 0f
         private var dinoVelocity = 0f
-        private val gravity = 2.8f
-        private val jumpStrength = -48f
+        private var gravity = 0f
+        private var jumpStrength = 0f
+        private var maxJumpHeight = 0f
         private var isJumping = false
         private var walkFrame = 0
         private var frameCounter = 0
@@ -305,6 +306,11 @@ class DinoWallpaperService : WallpaperService() {
                 screenWidth = rect.width()
                 screenHeight = rect.height()
                 lastProcessedTheme = engine.activeTheme
+                
+                val maxCactusH = screenHeight * 0.08f
+                maxJumpHeight = maxCactusH * 2.5f
+                gravity = maxJumpHeight / 180f
+                jumpStrength = -gravity * 19f
                 textPaint.textSize = screenWidth * 0.045f
                 textPaint.color = if (engine.activeTheme == 0) Color.parseColor("#535353") else Color.WHITE
 
@@ -481,8 +487,8 @@ class DinoWallpaperService : WallpaperService() {
                         // Birds fly at 3 different heights
                         val birdHeights = listOf(
                             screenHeight * 0.02f,  // Low
-                            screenHeight * 0.06f,  // Medium
-                            screenHeight * 0.12f   // High
+                            maxJumpHeight * 0.3f,  // Medium
+                            maxJumpHeight * 0.75f  // High
                         )
                         val yOff = birdHeights.random()
                         val h = screenHeight * 0.05f

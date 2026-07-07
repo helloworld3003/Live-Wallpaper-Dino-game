@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.livewallpaperdinogame"
+    namespace = "com.helloworld3003.livewallpaperdinogame"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.livewallpaperdinogame"
+        applicationId = "com.helloworld3003.livewallpaperdinogame"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

@@ -1,4 +1,4 @@
-package com.example.livewallpaperdinogame
+package com.helloworld3003.livewallpaperdinogame
 
 import org.junit.Test
 
