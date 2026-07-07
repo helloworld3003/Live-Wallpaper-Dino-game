@@ -1,0 +1,1 @@
+A fully playable, retro Chrome Dino runner game on your home screen.
