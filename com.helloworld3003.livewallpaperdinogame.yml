@@ -13,7 +13,7 @@ Repo: https://github.com/helloworld3003/Live-Wallpaper-Dino-game
 Builds:
   - versionName: 1.4.0
     versionCode: 4
-    commit: v1.4.0
+    commit: 2ec905c55d7fad85377f3ca62beff9068cac4119
     subdir: app
     gradle:
       - yes
