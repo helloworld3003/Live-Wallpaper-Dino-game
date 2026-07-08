@@ -1,8 +1,10 @@
-A fully functional, retro-style Chrome Dino runner game implemented as an Android Live Wallpaper. Just press on the dinosaur and the game will start immediately!
+<p>A fully functional, retro-style Chrome Dino runner game implemented as an Android Live Wallpaper. Just press on the dinosaur and the game will start immediately!</p>
 
-Features
-Playable Live Wallpaper: Tap the screen to make the Dino jump and avoid obstacles!
-Authentic Retro Aesthetics: Features classic monochrome sprites, scrolling clouds, and ground obstacles.
-Dynamic Theme Engine: Switch between Light, Plain Dark, and Alt Dark modes. The Dark theme features a fully animated night sky with twinkling stars and shooting stars.
-Smooth Animations: 60 FPS game loop rendering using Android's Canvas APIs. Downshifts CPU/GPU usage by 75% when idle to save battery.
-Universal Scaling: Hardcoded pixels are gone. Touch hitboxes, sizes, and spacing are percentage-based for a pixel-perfect experience on any device.
+<b>Features</b>
+<ul>
+<li><b>Playable Live Wallpaper:</b> Tap the screen to make the Dino jump and avoid obstacles!</li>
+<li><b>Authentic Retro Aesthetics:</b> Features classic monochrome sprites, scrolling clouds, and ground obstacles.</li>
+<li><b>Dynamic Theme Engine:</b> Switch between Light, Plain Dark, and Alt Dark modes. The Dark theme features a fully animated night sky with twinkling stars and shooting stars.</li>
+<li><b>Smooth Animations:</b> 60 FPS game loop rendering using Android's Canvas APIs. Downshifts CPU/GPU usage by 75% when idle to save battery.</li>
+<li><b>Universal Scaling:</b> Hardcoded pixels are gone. Touch hitboxes, sizes, and spacing are percentage-based for a pixel-perfect experience on any device.</li>
+</ul>
