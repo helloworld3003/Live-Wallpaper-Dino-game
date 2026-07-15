@@ -4,9 +4,9 @@
   <img src="dino_game.png" alt="App Icon" width="140"/>
 </p>
 
-![Total Downloads](https://img.shields.io/github/downloads/helloworld3003/Live-Wallpaper-Dino-game/total?label=Total%20Downloads&style=for-the-badge)
+![Total Downloads](https://img.shields.io/github/downloads/helloworld3003/Live-Wallpaper-Dino-game/total?label=Total%20Downloads&style=for-the-badge) ![F-Droid Downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgithub.com%2Fkitswas%2Ffdroid-metrics-dashboard%2Fraw%2Frefs%2Fheads%2Fmain%2Fprocessed%2Fmonthly%2Fcom.helloworld3003.livewallpaperdinogame.json&query=%24.total_downloads&logo=fdroid&label=F-Droid%20Downloads%20(Monthly)&style=for-the-badge&color=blue)
 
-[![Download APK](https://img.shields.io/badge/Download-APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/helloworld3003/Live-Wallpaper-Dino-game/releases/download/v1.3.0/Dino_game.apk)
+[![Download APK](https://img.shields.io/badge/Download-APK-brightgreen?style=for-the-badge&logo=android)](https://github.com/helloworld3003/Live-Wallpaper-Dino-game/releases/download/v1.3.0/Dino_game.apk) [![F-Droid](https://img.shields.io/f-droid/v/com.helloworld3003.livewallpaperdinogame.svg?style=for-the-badge&logo=f-droid)](https://f-droid.org/en/packages/com.helloworld3003.livewallpaperdinogame/)
 
 A fully functional, retro-style Chrome Dino runner game implemented as an Android Live Wallpaper. Just press on the dinosaur and the game will start immediately.
 <div align="center">

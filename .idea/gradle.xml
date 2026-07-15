@@ -13,6 +13,10 @@
           </set>
         </option>
       </GradleProjectSettings>
+      <GradleProjectSettings>
+        <option name="testRunner" value="CHOOSE_PER_TEST" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$/gradle" />
+      </GradleProjectSettings>
     </option>
   </component>
 </project>
